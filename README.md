@@ -43,6 +43,6 @@ Mostrará cual es el primer numero de la serie de fibonacci con más de 1000 div
 Creará 20 distancias al azar y calculará el rango y el tiempo de envío.
 
 ## Ejercicio 7
-Puede ejecutarse el SQL en un SQLFIDDLE y luego hacer un select de los salarios:
+Puede ejecutarse el SQL en un SQLFIDDLE y probar como quedaría el update corriendo el siguiente select antes:
 
-    select e.salary from employees;
+    SELECT e.*, con.anual_adjustment, IF(e.salary <= 5000, e.salary * (1 + con.anual_adjustment / 100), e.salary) AS ajustado FROM employees e INNER JOIN countries cou ON (e.country_id = cou.id) INNER JOIN continents con ON (cou.continent_id = con.id);
