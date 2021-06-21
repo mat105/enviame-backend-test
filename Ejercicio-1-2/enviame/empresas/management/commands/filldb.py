@@ -14,4 +14,6 @@ class Command(BaseCommand):
         companies_quantity = options['companies']
 
         if companies_quantity > 0:
-            baker.make(Company, _quantity=companies_quantity)
+            baker.make(Company, _quantity=companies_quantity, _bulk_create=True)
+
+        print("Done")

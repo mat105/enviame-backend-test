@@ -1,5 +1,3 @@
-import json
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 from model_bakery import baker
@@ -43,15 +41,10 @@ class CompanyTestCase(APITestCase):
     def test_post_company(self):
         prev_companies_count = Company.objects.all().count()
 
-        company = {
-            'name': 'test_post_company',
-            'address': 'Test content',
-            'tax_id': '20503002001',
-            'country': 'ARG',
-            'phone': '40952020'
-        }
+        company = baker.prepare(Company, name='test_post_company')
+        company_data = CompanySerializer(company).data
 
-        response = self.client.post('/companies/', data=company, format='json')
+        response = self.client.post('/companies/', data=company_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         company = Company.objects.get(name='test_post_company')
@@ -63,29 +56,22 @@ class CompanyTestCase(APITestCase):
         self.assertEqual(new_companies_count, prev_companies_count + 1)
 
     def test_delete_company(self):
-        company = baker.make(Company)
+        company = baker.make(Company, name='test_delete_company')
 
         response = self.client.delete(f'/companies/{company.id}/')
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-        try:
-            Company.objects.get(id=company.id)
-        except Company.DoesNotExist:
-            pass
+        companies_count = Company.objects.filter(name='test_delete_company').count()
+        self.assertEqual(companies_count, 0)
 
     def test_put_company(self):
-        company = baker.make(Company)
+        company = baker.make(Company, name='test_put_company')
 
-        company_modify = {
-            'name': 'test_put_company',
-            'address': 'add',
-            'tax_id': '100',
-            'country': 'ARG',
-            'phone': '40952020'
-        }
+        data = CompanySerializer(company).data
+        data['address'] = 'test_put_add_new_123'
 
-        response = self.client.put(f'/companies/{company.id}/', data=company_modify, format='json')
+        response = self.client.put(f'/companies/{company.id}/', data=data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -93,9 +79,7 @@ class CompanyTestCase(APITestCase):
         serializer = CompanySerializer(company)
 
         self.assertEqual(response.data, serializer.data)
-
-        company_modify['id'] = company.id
-        self.assertEqual(company_modify, serializer.data)
+        self.assertEqual(data, serializer.data)
 
     def test_patch_company(self):
         company = baker.make(Company)
